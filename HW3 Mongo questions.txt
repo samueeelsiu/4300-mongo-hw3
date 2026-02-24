@@ -149,16 +149,109 @@ output:
 ---------------------------------------------
 6.
 
-...
+Finding top 5 cheapest housing with a living area larger than 2000 in zipcode 02115
+
+db.housings.find(
+...   {zip_code:"02115", "properties.building_specs.living_area":{$gt: 2000}},
+...   {_id:0, "properties": { $elemMatch: {"building_specs.living_area": {$gt: 2000}}}}
+).sort({"properties.financials.total_value":1}).limit(5)
 
 ---------
 
 output:
+[
+  {
+    properties: [
+      {
+        pid: 402366000,
+        street_number: 4,
+        usage: 'SUBSD HOUSING S- 8',
+        owner_occupied: 'N',
+        financials: { total_value: 8975857, gross_tax: 111300.63 },
+        building_specs: { year_built: 1920, living_area: 31518, bedrooms: null, full_baths: 0 }
+      }
+    ]
+  },
+  {
+    properties: [
+      {
+        pid: 402378000,
+        street_number: 11,
+        usage: 'SUBSD HOUSING S- 8',
+        owner_occupied: 'N',
+        financials: { total_value: 6823286, gross_tax: 84608.75 },
+        building_specs: { year_built: 1920, living_area: 29988, bedrooms: null, full_baths: 0 }
+      }
+    ]
+  },
+  {
+    properties: [
+      {
+        pid: 401853100,
+        street_number: 1,
+        usage: 'HOSPITAL (exempt)',
+        owner_occupied: 'N',
+        financials: { total_value: 405359800, gross_tax: null },
+        building_specs: {
+          year_built: 2001,
+          living_area: 408309,
+          bedrooms: null,
+          full_baths: 0
+        }
+      }
+    ]
+  },
+  {
+    properties: [
+      {
+        pid: 401846000,
+        street_number: 78,
+        usage: 'SCHOOL',
+        owner_occupied: 'N',
+        financials: { total_value: 88576500, gross_tax: null },
+        building_specs: {
+          year_built: 1899,
+          living_area: 282420,
+          bedrooms: null,
+          full_baths: 0
+        }
+      }
+    ]
+  },
+  {
+    properties: [
+      {
+        pid: 503498000,
+        street_number: 406,
+        usage: 'APT 7-30 UNITS',
+        owner_occupied: 'N',
+        financials: { total_value: 2909900, gross_tax: 36082.76 },
+        building_specs: { year_built: 1900, living_area: 6892, bedrooms: null, full_baths: 0 }
+      }
+    ]
+  }
+]
 
 ---------------------------------------------
 7.
 
-...
+Find property that has no owner occupied, and at least 2 bedroom and 1 full bathroom in zip code 02115 price acsending show top 5
+
+db.housings.find(
+  {"zip_code": "02115", "properties": {"$elemMatch": {
+        "owner_occupied": "N",
+        "building_specs.bedrooms": {"$gte": 2},
+        "building_specs.full_baths": {"$gte": 1}
+      }}},
+  { "_id": 0,"properties": {
+      "$elemMatch": {
+        "owner_occupied": "N",
+        "building_specs.bedrooms": {"$gte": 2},
+        "building_specs.full_baths": {"$gte": 1}
+      }
+    }
+  }
+).sort({"properties.financials.total_value": 1}).limit(5)
 ---------
 
 output:
@@ -166,25 +259,94 @@ output:
 ---------------------------------------------
 8.
 
-...
+Find house with most number of bedroom regardless of zipcode
+
+db.housings.find(
+  {"properties.building_specs.bedrooms": {$gt: 0}},
+  {"_id": 0, "zip_code": 1,"street_name": 1,"properties": {
+      "$elemMatch": {"building_specs.bedrooms": {$gt: 0}}
+    }
+  }
+).sort({"properties.building_specs.bedrooms": -1}).limit(1)
 ---------
 
 output:
-
+[
+  {
+    zip_code: '02120',
+    street_name: 'FISHER AV',
+    properties: [
+      {
+        pid: 1001222000,
+        street_number: 107,
+        usage: 'THREE-FAM DWELLING',
+        owner_occupied: 'N',
+        financials: { total_value: 1907800, gross_tax: 23656.72 },
+        building_specs: { year_built: 1910, living_area: 3612, bedrooms: 11, full_baths: 4 }
+      }
+    ]
+  }
+]
 ---------------------------------------------
 9.
 
 
-...
+Find top 5 zipcode with highest avg property tax
+
+db.housings.aggregate([
+  {$unwind: "$properties"},
+  {$group: {_id: "$zip_code",avg_tax: {$avg: "$properties.financials.gross_tax"}}},
+  {$sort: {avg_tax: -1}},
+  {$limit: 5},
+  {$project: {"_id": 0,"zip_code": "$_id", "avg_tax": {$round: ["$avg_tax", 2]}}}
+])
 ---------
 
 output:
-
+[
+  { zip_code: '02201', avg_tax: 913314.48 },
+  { zip_code: '02137', avg_tax: 374153.58 },
+  { zip_code: '02199', avg_tax: 195996.27 },
+  { zip_code: '02210', avg_tax: 133582.47 },
+  { zip_code: '02110', avg_tax: 112221.07 }
+]
 
 ---------------------------------------------
 10.
 
-...
+Which 5 streets in Boston have the lowest average property value?
+
+db.boston_streets.find(
+    {"metrics.average_property_value": {"$gt": 0}},
+    { _id: 0, zip_code: 1, street_name: 1, "metrics.average_property_value": 1 }
+).sort({ "metrics.average_property_value": -1 }).limit(5)
 ---------
 
 output:
+[
+  {
+    zip_code: '02114',
+    street_name: 'Congress ST',
+    metrics: { average_property_value: 487473800 }
+  },
+  {
+    zip_code: '02199',
+    street_name: 'HUNTINGTON AV',
+    metrics: { average_property_value: 470255400 }
+  },
+  {
+    zip_code: '02114',
+    street_name: 'Longfellow PL',
+    metrics: { average_property_value: 340296300 }
+  },
+  {
+    zip_code: '02210',
+    street_name: 'Marina Park DR',
+    metrics: { average_property_value: 321123100 }
+  },
+  {
+    zip_code: '02128',
+    street_name: 'THOMPSON ISLAND',
+    metrics: { average_property_value: 307555700 }
+  }
+]
