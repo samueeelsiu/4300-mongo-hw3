@@ -1,0 +1,190 @@
+1.
+
+What are the aggregate metrics for Huntington Ave in the 02115 ZIP code?
+
+db.boston_streets.find(
+    { zip_code: "02115", street_name: "HUNTINGTON AV" },
+    { _id: 0, zip_code: 1, street_name: 1, metrics: 1 }
+)
+
+---------
+
+output:
+
+[
+  {
+    zip_code: '02115',
+    street_name: 'HUNTINGTON AV',
+    metrics: { total_properties: 238, average_property_value: 18506198.78 }
+  }
+]
+
+---------------------------------------------
+2.
+
+Which 5 streets in Boston have the highest average property value?
+
+db.boston_streets.find(
+    {}, 
+    { _id: 0, zip_code: 1, street_name: 1, "metrics.average_property_value": 1 }
+).sort({ "metrics.average_property_value": -1 }).limit(5)
+
+---------
+
+output:
+
+[
+  {
+    zip_code: '02114',
+    street_name: 'Congress ST',
+    metrics: { average_property_value: 487473800 }
+  },
+  {
+    zip_code: '02199',
+    street_name: 'HUNTINGTON AV',
+    metrics: { average_property_value: 470255400 }
+  },
+  {
+    zip_code: '02114',
+    street_name: 'Longfellow PL',
+    metrics: { average_property_value: 340296300 }
+  },
+  {
+    zip_code: '02210',
+    street_name: 'Marina Park DR',
+    metrics: { average_property_value: 321123100 }
+  },
+  {
+    zip_code: '02128',
+    street_name: 'THOMPSON ISLAND',
+    metrics: { average_property_value: 307555700 }
+  }
+]
+
+---------------------------------------------
+3.
+
+What're the 5 streets that contain at least one historic property built before the year 1800.
+
+db.boston_streets.find(
+    { "properties.building_specs.year_built": { $lt: 1800 } },
+    { _id: 0, zip_code: 1, street_name: 1 }
+).limit(5)
+
+---------
+
+output:
+
+[
+  { zip_code: '02114', street_name: 'Joy ST' },
+  { zip_code: '02114', street_name: 'Pinckney ST' },
+  { zip_code: '02122', street_name: 'Adams ST' },
+  { zip_code: '02124', street_name: 'GALLIVAN BLVD' },
+  { zip_code: '02124', street_name: 'W TREMLETT ST' }
+]
+
+---------------------------------------------
+4.
+
+What is the total number of assessed properties in each ZIP code, sorted from highest to lowest?
+
+db.boston_streets.aggregate([
+    { $group: { _id: "$zip_code", total_assessed_properties: { $sum: "$metrics.total_properties" } } },
+    { $sort: { total_assessed_properties: -1 } },
+    { $limit: 5 }
+])
+
+---------
+
+output:
+
+[
+  { _id: '02127', total_assessed_properties: 15957 },
+  { _id: '02135', total_assessed_properties: 12391 },
+  { _id: '02130', total_assessed_properties: 12288 },
+  { _id: '02124', total_assessed_properties: 11207 },
+  { _id: '02132', total_assessed_properties: 11100 }
+]
+
+---------------------------------------------
+5.
+
+What are the top 5 most expensive individual properties that are owner-occupied??
+
+db.boston_streets.aggregate([
+    { $unwind: "$properties" },
+    { $match: { "properties.owner_occupied": "Y", "properties.financials.total_value": { $ne: null } } },
+    { $sort: { "properties.financials.total_value": -1 } },
+    { $project: { _id: 0, street_name: 1, "properties.street_number": 1, "properties.financials.total_value": 1 } },
+    { $limit: 5 }
+])
+
+---------
+
+output:
+
+[
+  {
+    street_name: 'COMMONWEALTH AV',
+    properties: { street_number: 1515, financials: { total_value: 85274300 } }
+  },
+  {
+    street_name: 'Staniford ST',
+    properties: { street_number: 150, financials: { total_value: 43809500 } }
+  },
+  {
+    street_name: 'COMMONWEALTH AV',
+    properties: { street_number: 5, financials: { total_value: 28221900 } }
+  },
+  {
+    street_name: 'DARTMOUTH ST',
+    properties: { street_number: 315, financials: { total_value: 19499400 } }
+  },
+  {
+    street_name: 'MT VERNON ST',
+    properties: { street_number: 85, financials: { total_value: 17513800 } }
+  }
+]
+
+---------------------------------------------
+6.
+
+...
+
+---------
+
+output:
+
+---------------------------------------------
+7.
+
+...
+---------
+
+output:
+
+---------------------------------------------
+8.
+
+...
+---------
+
+output:
+
+---------------------------------------------
+9.
+
+
+...
+---------
+
+output:
+
+
+---------------------------------------------
+10.
+
+...
+---------
+
+output:
