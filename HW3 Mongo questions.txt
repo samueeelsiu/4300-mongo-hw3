@@ -255,6 +255,68 @@ db.housings.find(
 ---------
 
 output:
+[
+  {
+    properties: [
+      {
+        pid: 101619020,
+        street_number: 1008,
+        usage: 'RESIDENTIAL CONDO',
+        owner_occupied: 'N',
+        financials: { total_value: 297400, gross_tax: 3687.76 },
+        building_specs: { year_built: 2000, living_area: 1240, bedrooms: 2, full_baths: 2 }
+      }
+    ]
+  },
+  {
+    properties: [
+      {
+        pid: 401446054,
+        street_number: 65,
+        usage: 'RESIDENTIAL CONDO',
+        owner_occupied: 'N',
+        financials: { total_value: 501300, gross_tax: 6216.12 },
+        building_specs: { year_built: 1900, living_area: 607, bedrooms: 2, full_baths: 1 }
+      }
+    ]
+  },
+  {
+    properties: [
+      {
+        pid: 402357004,
+        street_number: 5,
+        usage: 'RESIDENTIAL CONDO',
+        owner_occupied: 'N',
+        financials: { total_value: 754500, gross_tax: 9355.8 },
+        building_specs: { year_built: 1920, living_area: 803, bedrooms: 2, full_baths: 1 }
+      }
+    ]
+  },
+  {
+    properties: [
+      {
+        pid: 503499016,
+        street_number: 408,
+        usage: 'RESIDENTIAL CONDO',
+        owner_occupied: 'N',
+        financials: { total_value: 2951800, gross_tax: 36602.32 },
+        building_specs: { year_built: 1910, living_area: 2250, bedrooms: 2, full_baths: 3 }
+      }
+    ]
+  },
+  {
+    properties: [
+      {
+        pid: 402379002,
+        street_number: 15,
+        usage: 'RESIDENTIAL CONDO',
+        owner_occupied: 'N',
+        financials: { total_value: 826100, gross_tax: 10243.64 },
+        building_specs: { year_built: 1930, living_area: 1132, bedrooms: 2, full_baths: 1 }
+      }
+    ]
+  }
+]
 
 ---------------------------------------------
 8.
